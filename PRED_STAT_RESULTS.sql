@@ -1,0 +1,81 @@
+--Model 1
+SELECT YEAR, MONTH, DAY,
+      to_char(TIME1,'yyyy/mm/dd hh:mi:ss') AS TIME1,
+      PRED_M1_T1,
+      SE_M1_T1,
+      CI95L_M1_T1,
+      CI95U_M1_T1,
+      PRED_M2_T1,
+      SE_M2_T1,
+      CI95L_M2_T1,
+      CI95U_M2_T1,
+      to_char(TIME2,'yyyy/mm/dd hh:mi:ss') AS TIME2,
+      PRED_M1_T2,
+      SE_M1_T2,
+      CI95L_M1_T2,
+      CI95U_M1_T2,
+      PRED_M2_T2,
+      SE_M2_T2,
+      CI95L_M2_T2,
+      CI95U_M2_T2,
+      to_char(LATEST_UPDATE,'yyyy/mm/dd hh:mi:ss') AS LATEST_UPDATE,
+      PRED_M1_LATEST,
+      PRED_M2_LATEST,
+      ACTUAL_LATEST
+FROM X_PRED_STAT1
+ORDER BY YEAR ASC, TO_NUMBER(MONTH) ASC, TO_NUMBER(DAY) ASC;
+
+--Model2
+SELECT 
+    YEAR,
+    MONTH,
+    DAY,
+    TO_CHAR(RUN_TIME,'yyyy/mm/dd hh:mi:ss') AS RUN_TIME,
+    PRED_M1,
+    SE_M1,
+    CI95L_M1,
+    CI95U_M1,
+    PRED_M2,
+    SE_M2,
+    CI95L_M2,
+    CI95U_M2
+FROM X_PRED_STAT2
+ORDER BY YEAR ASC, TO_NUMBER(MONTH) ASC, TO_NUMBER(DAY) ASC;
+
+--Yesterday Count
+SELECT
+    YEAR,
+    MONTH,
+    DAY,
+    TO_CHAR(RETRIEVAL_TIME,'yyyy/mm/dd hh:mi:ss') AS RETRIEVAL_TIME,
+    ACTUAL_COUNT
+FROM X_YESTERDAY_COUNT
+ORDER BY YEAR ASC, TO_NUMBER(MONTH) ASC, TO_NUMBER(DAY) ASC;
+
+--Historical Count
+SELECT
+YEAR,
+MONTH,
+DAY,
+DAILY_TOTAL
+FROM (
+      SELECT TRUNC(DATEOCC),
+      YEAR,
+      MONTH,
+      DAY,
+      COUNT(CURR_IUCR) AS DAILY_TOTAL
+      FROM CHRIS_DWH.CRIMES_ALLV
+      WHERE (DATEOCC BETWEEN TO_DATE(TO_CHAR(SYSDATE-60, 'MM-DD-YYYY') || ' 00:00:00', 'MM-DD-YYYY hh24:mi:ss') AND TO_DATE(TO_CHAR(SYSDATE-1, 'MM-DD-YYYY') || ' 23:59:59', 'MM-DD-YYYY hh24:mi:ss')) 
+      AND (CITY='CHICAGO') 
+      AND (CURR_IUCR IN ('0110','0130','041A','041B','0420','0430','0440','0479','051A','051B','0520','0530','0545','0560','1753','1754') 
+      OR CURR_IUCR LIKE '02__'
+      OR CURR_IUCR LIKE '03__'
+      OR CURR_IUCR LIKE '045_'
+      OR CURR_IUCR LIKE '046_'
+      OR CURR_IUCR LIKE '048_'
+      OR CURR_IUCR LIKE '049_'
+      OR CURR_IUCR LIKE '055_')
+      GROUP BY TRUNC(DATEOCC), YEAR, MONTH, DAY
+      ORDER BY TRUNC(DATEOCC) ASC
+);
+

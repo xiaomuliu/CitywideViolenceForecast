@@ -1,0 +1,54 @@
+create or replace PROCEDURE  X_7DAY_COUNT_UPDATE AS
+
+BEGIN
+  DECLARE
+    I_YEAR VARCHAR(4);
+    I_MONTH VARCHAR(2);
+    I_DAY VARCHAR(2);
+    I_DAILY_TOTAL NUMBER;
+    
+    ExistRow NUMBER;
+
+    CURSOR c1
+    IS     
+      DEFINE TableName = 'CHRIS_DWH.CRIMES_'||TO_CHAR(sysdate,'YY')||'_'||TO_CHAR(TO_CHAR(sysdate,'YY')+1)||'V'
+      SELECT YEAR, MONTH, DAY, COUNT(CURR_IUCR)
+      FROM &TableName
+      WHERE (DATEOCC BETWEEN TO_DATE(TO_CHAR(sysdate-7, 'MM-DD-YYYY') || ' 00:00:00', 'MM-DD-YYYY hh24:mi:ss') AND TO_DATE(TO_CHAR(sysdate-1, 'MM-DD-YYYY') || ' 23:59:59', 'MM-DD-YYYY hh24:mi:ss')) 
+        AND (CITY='CHICAGO') 
+        AND (CURR_IUCR IN ('0110','0130','041A','041B','0420','0430','0440','0479','051A','051B','0520','0530','0545','0560','1753','1754') 
+        OR CURR_IUCR LIKE '02__'
+        OR CURR_IUCR LIKE '03__'
+        OR CURR_IUCR LIKE '045_'
+        OR CURR_IUCR LIKE '046_'
+        OR CURR_IUCR LIKE '048_'
+        OR CURR_IUCR LIKE '049_'
+        OR CURR_IUCR LIKE '055_')
+      GROUP BY YEAR, MONTH, DAY
+      ORDER BY YEAR ASC, MONTH ASC, DAY ASC;
+      
+  BEGIN
+    OPEN c1;
+    LOOP
+      FETCH c1 INTO I_YEAR, I_MONTH, I_DAY, I_DAILY_TOTAL;
+      EXIT WHEN c1%NOTFOUND;
+      
+      SELECT COUNT(*) INTO ExistRow FROM X_7DAY_COUNT WHERE YEAR=I_YEAR AND MONTH=I_MONTH AND DAY=I_DAY;
+      IF ExistRow = 0
+      THEN
+          -- insert new rows
+          INSERT INTO X_7DAY_COUNT (YEAR,MONTH,DAY,RETRIEVAL_TIME,ACTUAL_COUNT)
+          VALUES (I_YEAR,I_MONTH,I_DAY,sysdate,I_DAILY_TOTAL);
+      ELSE
+          -- update existing rows
+          UPDATE X_7DAY_COUNT SET RETRIEVAL_TIME=sysdate, ACTUAL_COUNT=I_DAILY_TOTAL
+          WHERE YEAR=I_YEAR AND MONTH=I_MONTH AND DAY=I_DAY;
+      END IF;
+      
+    END LOOP;  
+    CLOSE c1;
+      
+    COMMIT WORK; 
+  END;
+
+END X_7DAY_COUNT_UPDATE;
