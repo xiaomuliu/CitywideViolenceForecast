@@ -1,4 +1,4 @@
-setwd("/Users/xiaomuliu/CrimeProject/R_DB/")
+setwd("/Users/xiaomuliu/CrimeProject/ViolenceForecastTool/R_version/")
 
 # Set JAVA_HOME, set max. memory, and load rJava library
 Sys.setenv(JAVA_HOME='/usr/libexec/java_home -v 1.7')
