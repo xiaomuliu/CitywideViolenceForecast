@@ -158,7 +158,7 @@ winSize <- 90
 winNum <- 7
 
 CrimeData.pred <- data.frame(DATEOCC=date.pred,TStrend=NA,TSresPred=NA,HolidayCorrection=NA)
-CrimeData.pred$TStrend <- CrimeData.nonbuffer$TStrend[match(date.pred-1,CrimeData.nonbuffer$DATEOCC)]
+CrimeData.pred$TStrend <- CrimeData.nonbuffer$TStrend[match(date.pred,CrimeData.nonbuffer$DATEOCC)]
 
 # match crime data and weather data by date
 DateRange <- c(CrimeData.nonbuffer$DATEOCC[1],date.pred-1)
@@ -211,7 +211,7 @@ CrimeData.pred$TSresPred[CrimeData.pred$DATEOCC==date.pred] <- y_hat.test
 # Compenstate holiday cases
 H_indicator<- holidays(date.pred)
 if (H_indicator != 0){
-  if (H_indicator==1 & format(date.pred,"%m-%date.pred")!="01-01"){
+  if (H_indicator==1 & format(date.pred,"%m-%d")!="01-01"){
     # Do not compensate when the new year observation is not on Jan 1st
     Correction <- 0
   }
@@ -227,8 +227,7 @@ if (H_indicator != 0){
     y_hat.holiday <- predict(fit.lasso,newx=as.matrix(X.holiday),type="response")
     Correction <- mean(y.holiday-y_hat.holiday)
   }    
-}
-else{
+}else{
   # non-holiday days: no correction
   Correction <- 0
 }  

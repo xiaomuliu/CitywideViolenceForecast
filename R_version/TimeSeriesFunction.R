@@ -152,8 +152,8 @@ VariableSet2 <- function(varSet,crimeData,weatherData,weatherDiffData){
   # day of week (dummy variable) + daily weather data + daily weather difference + lagged variables(1,2,7)   
   res <- crimeData$TSdetrendRes
   X <- cbind(DOW.coded[nrow(DOW.coded),],subset(weatherData,select=-Date),
-             subset(weatherDiffData,select=-Date),lag7=res[length(res)-6],
-             lag2=res[length(res)-1],lag1=res[length(res)])
+             subset(weatherDiffData,select=-Date),lag7=res[length(res)-7],
+             lag2=res[length(res)-2],lag1=res[length(res)-1])
 
   return(X)
 }
