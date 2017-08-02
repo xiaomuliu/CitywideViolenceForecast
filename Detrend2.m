@@ -33,7 +33,7 @@ TrendEnd= find(Crime.Year==CurrentDate.Year & Crime.Month==CurrentDate.Month & C
 TrendStart = TrendEnd-EstTrendSize+1;
 
 NumCrimes_temp = Crime.NumCrimes; % save daily total in a temporary variable T
-% soomth out holidays in T
+% smooth out holidays in T
 HolidayIndices = find(Crime.Holiday~=0);
 for i = 1:length(HolidayIndices)
     if HolidayIndices(i)==1 %the first datum
