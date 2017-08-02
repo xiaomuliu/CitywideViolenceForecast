@@ -1,5 +1,5 @@
 # CitywideViolentCrimeForecast
-This repository contatins Chicago citywide violent crime count predictive models implemented in MATLAB.
+This repository contatins Chicago citywide daily violent crime count predictive models implemented in MATLAB.
 
 When distributing the program in new machines, please first run three scripts in folder DailyForecastToolConfig:
 1. PredictTrend.m
